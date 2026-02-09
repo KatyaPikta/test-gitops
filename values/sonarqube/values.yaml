@@ -1,15 +1,19 @@
 monitoringPasscode: test123
 
+nodeSelector:
+  kubernetes.io/os: linux
 community:
   enabled: true
   buildNumber: "26.1.0.118079"
 
 
 postgresql:
-  enabled: true
   persistence:
     enabled: true
     size: 5Gi
+  primary:
+    nodeSelector:
+      kubernetes.io/os: linux
 
 plugins:
   install:
