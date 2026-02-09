@@ -1,3 +1,5 @@
+monitoringPasscode: test123
+
 community:
   enabled: true
   buildNumber: "26.1.0.118079"
