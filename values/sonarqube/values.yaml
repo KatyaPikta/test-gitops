@@ -13,6 +13,7 @@ postgresql:
     # existingClaim: data-sonarqube-postgresql-0
     size: 5Gi
   primary:
+    replicas: 0
     nodeSelector:
       kubernetes.io/os: linux
 
