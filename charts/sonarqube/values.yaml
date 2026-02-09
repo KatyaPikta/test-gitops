@@ -54,16 +54,7 @@ OpenShift:
 # Set the chart to use the latest released SonarQube Community Build
 community:
   enabled: false
-  buildNumber: "26.1.0.118079"
-
-# The following settings are used when deploying to Azure Marketplace
-# global:
-#   azure:
-#     images:
-#       sonarqube:
-#         registry: registry-test
-#         image: sonarqube
-#         tag: 2025.2.0-enterprise
+  buildNumber: "25.8.0.112029"
 
 image:
   repository: sonarqube
@@ -81,8 +72,8 @@ securityContext:
 # Set security context for sonarqube container.
 # The current section contains the default values set in a generic Kubernetes cluster. If you are using OpenShift, you should not set any specific UID or GID to be used for the execution.
 containerSecurityContext:
-  # Sonarqube dockerfile creates sonarqube user as UID and GID 0
-  # Those default are used to match pod security standard restricted as least privileged approach
+# Sonarqube dockerfile creates sonarqube user as UID and GID 0
+# Those default are used to match pod security standard restricted as least privileged approach
   allowPrivilegeEscalation: false
   runAsNonRoot: true
   runAsUser: 1000
@@ -141,7 +132,6 @@ sonarWebContext: ""
 # nginx:
 #   enabled: false
 
-# (DEPRECATED) The ingress-nginx controller was retired. Please use one of the alternatives and visit https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/ for more details.
 # Install the nginx ingress helm chart
 ingress-nginx:
   enabled: false
@@ -186,7 +176,7 @@ ingress:
   # Set the ingressClassName on the ingress record
   # ingressClassName: nginx
 
-  # Additional labels for Ingress manifest file
+# Additional labels for Ingress manifest file
   # labels:
   #  traffic-type: external
   #  traffic-type: internal
@@ -228,16 +218,16 @@ hostAliases: []
 readinessProbe:
   exec:
     command:
-      - sh
-      - -c
-      - |
-        #!/bin/bash
-        # A Sonarqube container is considered ready if the status is UP, DB_MIGRATION_NEEDED or DB_MIGRATION_RUNNING
-        # status about migration are added to prevent the node to be kill while SonarQube is upgrading the database.
-        if wget --no-proxy -qO- http://localhost:{{ .Values.service.internalPort }}{{ .Values.readinessProbe.sonarWebContext | default (include "sonarqube.webcontext" .) }}api/system/status | grep -q -e '"status":"UP"' -e '"status":"DB_MIGRATION_NEEDED"' -e '"status":"DB_MIGRATION_RUNNING"'; then
-          exit 0
-        fi
-        exit 1
+    - sh
+    - -c
+    - |
+      #!/bin/bash
+      # A Sonarqube container is considered ready if the status is UP, DB_MIGRATION_NEEDED or DB_MIGRATION_RUNNING
+      # status about migration are added to prevent the node to be kill while SonarQube is upgrading the database.
+      if wget --no-proxy -qO- http://localhost:{{ .Values.service.internalPort }}{{ .Values.readinessProbe.sonarWebContext | default (include "sonarqube.webcontext" .) }}api/system/status | grep -q -e '"status":"UP"' -e '"status":"DB_MIGRATION_NEEDED"' -e '"status":"DB_MIGRATION_RUNNING"'; then
+        exit 0
+      fi
+      exit 1
   initialDelaySeconds: 60
   periodSeconds: 30
   failureThreshold: 6
@@ -251,10 +241,10 @@ readinessProbe:
 livenessProbe:
   exec:
     command:
-      - sh
-      - -c
-      - |
-        wget --no-proxy --quiet -O /dev/null --timeout={{ .Values.livenessProbe.timeoutSeconds }} --header="X-Sonar-Passcode: $SONAR_WEB_SYSTEMPASSCODE" "http://localhost:{{ .Values.service.internalPort }}{{ .Values.livenessProbe.sonarWebContext | default (include "sonarqube.webcontext" .) }}api/system/liveness"
+    - sh
+    - -c
+    - |
+      wget --no-proxy --quiet -O /dev/null --timeout={{ .Values.livenessProbe.timeoutSeconds }} --header="X-Sonar-Passcode: $SONAR_WEB_SYSTEMPASSCODE" "http://localhost:{{ .Values.service.internalPort }}{{ .Values.livenessProbe.sonarWebContext | default (include "sonarqube.webcontext" .) }}api/system/liveness"
   initialDelaySeconds: 60
   periodSeconds: 30
   failureThreshold: 6
@@ -507,8 +497,7 @@ persistence:
   #   type: DirectoryOrCreate
 
 # In case you want to specify different resources for emptyDir than {}
-emptyDir:
-  {}
+emptyDir: {}
   # Example of resouces that might be used:
   # medium: Memory
   # sizeLimit: 16Mi
@@ -533,9 +522,10 @@ emptyDir:
 jdbcOverwrite:
   # (DEPRECATED) Please use jdbcOverwrite.enabled instead
   # enable: false
+  # If enable the JDBC Overwrite, make sure to set `postgresql.enabled=false`
   enabled: false
   # The JDBC url of the external DB
-  jdbcUrl: "jdbc:postgresql://myPostgres/myDatabase"
+  jdbcUrl: "jdbc:postgresql://myPostgress/myDatabase"
   # The DB user that should be used for the JDBC connection
   jdbcUsername: "sonarUser"
   # Use this if you don't mind the DB password getting stored in plain text within the values file
@@ -550,6 +540,98 @@ jdbcOverwrite:
   # oracleJdbcDriver:
   #   url: "https://download.oracle.com/otn-pub/otn_software/jdbc/2113/ojdbc11.jar"
   #   netrcCreds: ""
+
+## (DEPRECATED) Configuration values for postgresql dependency
+## ref: https://github.com/bitnami/charts/blob/master/bitnami/postgresql/README.md
+postgresql:
+  # Enable to deploy the bitnami PostgreSQL chart
+  enabled: true
+  ## postgresql Chart global settings
+  # global:
+  #   imageRegistry: ''
+  #   imagePullSecrets: ''
+  ## bitnami/postgres image tag
+  image:
+    repository: "bitnamilegacy/postgresql"
+    tag: 11.14.0
+  # Set the readiness probe to avoid that the initialization scripts' are not completed before marking the pod as ready.
+  readinessProbe:
+    enabled: false
+  customReadinessProbe:
+    exec:
+      command:
+        - /bin/sh
+        - -c
+        - -e
+        - |
+          {{- if (include "postgresql.database" .) }}
+          exec pg_isready -U {{ include "postgresql.username" . | quote }} -d "dbname={{ include "postgresql.database" . }} {{- if .Values.tls.enabled }} sslcert={{ include "postgresql.tlsCert" . }} sslkey={{ include "postgresql.tlsCertKey" . }}{{- end }}" -h 127.0.0.1 -p {{ .Values.containerPorts.postgresql }}
+          {{- else }}
+          exec pg_isready -U {{ include "postgresql.username" . | quote }} {{- if .Values.tls.enabled }} -d "sslcert={{ include "postgresql.tlsCert" . }} sslkey={{ include "postgresql.tlsCertKey" . }}"{{- end }} -h 127.0.0.1 -p {{ .Values.containerPorts.postgresql }}
+          {{- end }}
+          {{- if contains "bitnamilegacy/" .Values.image.repository }}
+          [ -f /opt/bitnami/postgresql/tmp/.initialized ] || [ -f /bitnami/postgresql/.initialized ]
+          {{- end }}
+    failureThreshold: 6
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 5
+  # existingSecret Name of existing secret to use for PostgreSQL passwords
+  # The secret has to contain the keys postgresql-password which is the password for postgresqlUsername when it is
+  # different of postgres, postgresql-postgres-password which will override postgresqlPassword,
+  # postgresql-replication-password which will override replication.password and postgresql-ldap-password which will be
+  # used to authenticate on LDAP. The value is evaluated as a template.
+  # existingSecret: ""
+  #
+  # The bitnami chart enforces the key to be "postgresql-password". This value is only here for historic purposes
+  # existingSecretPasswordKey: "postgresql-password"
+  postgresqlUsername: "sonarUser"
+  postgresqlPassword: "sonarPass"
+  postgresqlDatabase: "sonarDB"
+  # Specify the TCP port that PostgreSQL should use
+  service:
+    port: 5432
+  resources:
+    limits:
+      cpu: 2
+      memory: 2Gi
+    requests:
+      cpu: 100m
+      memory: 200Mi
+  persistence:
+    enabled: true
+    accessMode: ReadWriteOnce
+    size: 20Gi
+    storageClass:
+  securityContext:
+    enabled: true
+    # fsGroup specification below are not applied if enabled=false. enabled=false is the required setting for OpenShift "restricted SCC" to work successfully.
+    # postgresql dockerfile sets user as 1001
+    fsGroup: 1001
+  containerSecurityContext:
+    enabled: true
+    # runAsUser specification below are not applied if enabled=false. enabled=false is the required setting for OpenShift "restricted SCC" to work successfully.
+    # postgresql dockerfile sets user as 1001, the rest aim at making it compatible with restricted pod security standard.
+    runAsUser: 1001
+    allowPrivilegeEscalation: false
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+    capabilities:
+      drop: ["ALL"]
+  volumePermissions:
+    enabled: false
+    # if using restricted SCC set runAsUser: "auto" and if running under anyuid/nonroot SCC - runAsUser needs to match runAsUser above
+    securityContext:
+      runAsUser: 0
+  shmVolume:
+    chmod:
+      enabled: false
+  serviceAccount:
+    ## If enabled = true, and name is not set, postgreSQL will create a serviceAccount
+    enabled: false
+    # name:
 
 # Additional labels to add to the pods:
 # podLabels:

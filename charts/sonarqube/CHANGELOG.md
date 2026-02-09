@@ -1,35 +1,22 @@
 # SonarQube Chart Changelog
 All changes to this chart will be documented in this file.
 
-## [2026.1.0]
-* Upgrade SonarQube Server to 2026.1.0
-* Upgrade Chart's version to 2026.1.0
-* Upgrade SonarQube Community build to 26.1.0.118079
-* Remove PostgreSQL embedded chart dependency and related settings
-* Support Kubernetes v1.35
-* Support Openshift v4.20
-* Update ingress-nginx subchart to 4.14.1
-* Deprecate the ingress-nginx dependency
+## [2025.4.3]
+* Update Chart's version to 2025.4.3
+* Upgrade SonarQube Server to 2025.4.3
 
-## [2025.6.0]
-* Upgrade SonarQube Server to to 2025.6.0
-* Update Chart's version to 2025.6.0
-* Upgrade SonarQube Community Build to 25.12.0.117093
-* Disable Postgresql when the JDBC overwrite is used
-* Make SonarQube Server available as an Container App on the Azure Marketplace
-
-## [2025.5.0]
-* Upgrade SonarQube Server to to 2025.5.0
-* Update Chart's version to 2025.5.0
-* Upgrade SonarQube Community Build to 25.9.0.112764
+## [2025.4.2]
+* Update Chart's version to 2025.4.2
+* Upgrade SonarQube Server to 2025.4.2
+* Upgrade SonarQube Community Build to 25.8.0.112029
 * Update the image and readinessProbe used by postgresql after they migrated to a legacy repository
-* Support Kubernetes v1.34.0
-* Make SonarQube Server available as an Container App on the Azure Marketplace
-* Disable Postgresql when the JDBC overwrite is used
+
+## [2025.4.1]
+* Update Chart's version to 2025.4.1
+* Upgrade SonarQube Server to 2025.4.1
 
 ## [2025.4.0]
 * Update Chart's version to 2025.4.0
-* Upgrade SonarQube Server to to 2025.4.0
 * Upgrade SonarQube Community Build to 25.7.0.110598
 * Upgrade nginx subchart to 4.12.3
 * Support Kubernetes v1.32
