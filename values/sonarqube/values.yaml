@@ -6,6 +6,7 @@ community:
 
 
 postgresql:
+  enabled: true
   persistence:
     enabled: true
     size: 5Gi
