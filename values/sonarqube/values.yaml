@@ -2,6 +2,7 @@ monitoringPasscode: test123
 
 nodeSelector:
   kubernetes.io/os: linux
+
 community:
   enabled: true
   buildNumber: "26.1.0.118079"
@@ -14,6 +15,10 @@ postgresql:
   primary:
     nodeSelector:
       kubernetes.io/os: linux
+    containerSecurityContext:
+      enabled: false
+    podSecurityContext:
+      enabled: false
 
 plugins:
   install:
