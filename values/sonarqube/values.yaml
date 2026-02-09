@@ -10,6 +10,7 @@ community:
 postgresql:
   persistence:
     enabled: true
+    existingClaim: data-sonarqube-postgresql-0
     size: 5Gi
   primary:
     nodeSelector:
