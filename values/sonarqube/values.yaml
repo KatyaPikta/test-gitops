@@ -8,8 +8,8 @@ community:
   buildNumber: "26.1.0.118079"
 
 postgresql:
-  replicas: 0
   persistence:
+    replicas: 0
     enabled: true
     # existingClaim: data-sonarqube-postgresql-0
     size: 5Gi
