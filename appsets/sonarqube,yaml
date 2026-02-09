@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sonarqube
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/KatyaPikta/test-gitops.git
+    targetRevision: HEAD
+    path: charts/sonarqube
+    helm:
+      skipCrds: true
+      valueFiles:
+        - "../../apps/sonarqube/values.yaml"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: sonarqube
+    
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
