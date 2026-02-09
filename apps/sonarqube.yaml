@@ -11,7 +11,7 @@ spec:
     helm:
       skipCrds: true
       valueFiles:
-        - "../../apps/sonarqube/values.yaml"
+        - "../../values/sonarqube/values.yaml"
   destination:
     server: https://kubernetes.default.svc
     namespace: sonarqube
