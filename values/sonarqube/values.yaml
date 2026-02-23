@@ -21,7 +21,7 @@ plugins:
   install:
     - https://github.com/fabiogermann/sonarqube-community-branch-plugin/releases/download/26.1.1/sonarqube-community-branch-plugin-26.1.1.jar
     - https://github.com/dependency-check/dependency-check-sonar-plugin/releases/download/6.0.0/sonar-dependency-check-plugin-6.0.0.jar
-    # - https://github.com/insideapp-oss/sonar-flutter/releases/download/0.5.2/sonar-flutter-plugin-0.5.2.jar
+    - https://github.com/insideapp-oss/sonar-flutter/releases/download/0.5.2/sonar-flutter-plugin-0.5.2.jar
 
 sonarProperties:
   sonar.web.javaAdditionalOpts: "-javaagent:/opt/sonarqube/extensions/plugins/sonarqube-community-branch-plugin-26.1.1.jar=web"
